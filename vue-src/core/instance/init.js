@@ -19,20 +19,14 @@ export function initMixin (Vue: Class<Component>) {
     vm._uid = uid++
 
     let startTag, endTag
-    /* istanbul ignore if */
-    if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
-      startTag = `vue-perf-start:${vm._uid}`
-      endTag = `vue-perf-end:${vm._uid}`
-      mark(startTag)
-    }
 
     // a flag to avoid this being observed
     vm._isVue = true
-    // merge options
+    // 合并选项 
     if (options && options._isComponent) {
-      // optimize internal component instantiation
-      // since dynamic options merging is pretty slow, and none of the
-      // internal component options needs special treatment.
+      //优化内部组件实例化
+      //因为动态选项合并非常慢，而且没有
+      //内部组件选项需要特殊处理。 
       initInternalComponent(vm, options)
     } else {
       vm.$options = mergeOptions(
@@ -48,10 +42,15 @@ export function initMixin (Vue: Class<Component>) {
       vm._renderProxy = vm
     }
     // expose real self
+    // 初始化核心代码
     vm._self = vm
+    // 初始化跟其他组件有关的东西，如：$children、$root、$parent、$refs
     initLifecycle(vm)
+    // 初始化事件监听(监听父组件的事件)：自己派发、自己监听
     initEvents(vm)
+    // 初始化渲染器
     initRender(vm)
+    // 生命周期钩子 beforeCreate
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
     initState(vm)
