@@ -110,6 +110,7 @@ function initProps (vm: Component, propsOptions: Object) {
 }
 
 function initData (vm: Component) {
+  // 获取到 data 选项
   let data = vm.$options.data
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
@@ -123,6 +124,7 @@ function initData (vm: Component) {
     )
   }
   // proxy data on instance
+  // 去重 data/methods/props 中的属性不能重复
   const keys = Object.keys(data)
   const props = vm.$options.props
   const methods = vm.$options.methods
@@ -144,10 +146,12 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      // 数据代理
       proxy(vm, `_data`, key)
     }
   }
   // observe data
+  // 递归的数据响应化
   observe(data, true /* asRootData */)
 }
 
