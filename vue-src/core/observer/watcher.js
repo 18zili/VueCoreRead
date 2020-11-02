@@ -168,6 +168,7 @@ export default class Watcher {
     } else if (this.sync) {
       this.run()
     } else {
+      // 把 watcher 放入队列
       queueWatcher(this)
     }
   }

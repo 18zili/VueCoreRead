@@ -11,6 +11,7 @@ const callbacks = []
 let pending = false
 
 function flushCallbacks () {
+  // 将所有的callback执行一遍
   pending = false
   const copies = callbacks.slice(0)
   callbacks.length = 0
@@ -19,26 +20,27 @@ function flushCallbacks () {
   }
 }
 
-// Here we have async deferring wrappers using microtasks.
-// In 2.5 we used (macro) tasks (in combination with microtasks).
-// However, it has subtle problems when state is changed right before repaint
-// (e.g. #6813, out-in transitions).
-// Also, using (macro) tasks in event handler would cause some weird behaviors
-// that cannot be circumvented (e.g. #7109, #7153, #7546, #7834, #8109).
-// So we now use microtasks everywhere, again.
-// A major drawback of this tradeoff is that there are some scenarios
-// where microtasks have too high a priority and fire in between supposedly
-// sequential events (e.g. #4521, #6690, which have workarounds)
-// or even between bubbling of the same event (#6566).
+// 这里，我们使用微任务异步延迟包装器。
+// 在2.5中，我们使用了（宏）任务（与微任务结合使用）。
+// 但是，当在重新绘制之前更改状态时，它存在一些细微的问题
+//（例如＃6813，由外向内的过渡）。
+// 此外，在事件处理程序中使用（宏）任务会导致一些奇怪的行为
+// 无法规避的代码（例如＃7109，＃7153，＃7546，＃7834，＃8109）。
+// 因此，我们现在再次在各处使用微任务。
+// 这种折衷的主要缺点是存在一些场景
+// 微任务的优先级过高，并且在两者之间触发
+// 顺序事件（例如＃4521，＃6690，它们具有解决方法）
+// 甚至在同一事件冒泡之间（＃6566）。
 let timerFunc
 
-// The nextTick behavior leverages the microtask queue, which can be accessed
-// via either native Promise.then or MutationObserver.
-// MutationObserver has wider support, however it is seriously bugged in
-// UIWebView in iOS >= 9.3.3 when triggered in touch event handlers. It
-// completely stops working after triggering a few times... so, if native
-// Promise is available, we will use it:
+// nextTick行为利用了微任务队列，可以访问它
+// 通过本地Promise.then或MutationObserver。
+// MutationObserver拥有更广泛的支持，但是在此方面存在严重错误
+// 在触摸事件处理程序中触发时，iOS> = 9.3.3中的UIWebView。它
+// 触发几次后完全停止工作...因此，如果是原生的
+// Promise可用，我们将使用它：
 /* istanbul ignore next, $flow-disable-line */
+
 if (typeof Promise !== 'undefined' && isNative(Promise)) {
   const p = Promise.resolve()
   timerFunc = () => {
@@ -86,6 +88,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
 
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
+  // 包装回调函数
   callbacks.push(() => {
     if (cb) {
       try {
@@ -99,6 +102,7 @@ export function nextTick (cb?: Function, ctx?: Object) {
   })
   if (!pending) {
     pending = true
+    // 时间函数：异步执行任务
     timerFunc()
   }
   // $flow-disable-line
