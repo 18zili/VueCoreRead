@@ -526,10 +526,12 @@ export function createPatchFunction (backend) {
       return
     }
 
-    // reuse element for static trees.
-    // note we only do this if the vnode is cloned -
-    // if the new node is not cloned it means the render functions have been
-    // reset by the hot-reload-api and we need to do a proper re-render.
+    // 重用静态树元素。
+    // 请注意，只有在克隆了vnode时，我们才这样做-
+    // 如果未克隆新节点，则表示渲染功能已被
+    // 通过hot-reload-api进行重置，我们需要进行适当的重新渲染。 
+
+    // 静态节点
     if (isTrue(vnode.isStatic) &&
       isTrue(oldVnode.isStatic) &&
       vnode.key === oldVnode.key &&
@@ -545,27 +547,39 @@ export function createPatchFunction (backend) {
       i(oldVnode, vnode)
     }
 
+    // 核心代码
+    // 获取两个组件的 children
     const oldCh = oldVnode.children
     const ch = vnode.children
+
+    // 属性更新
     if (isDef(data) && isPatchable(vnode)) {
       for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
     }
+
+    // 新节点可能有 children
     if (isUndef(vnode.text)) {
       if (isDef(oldCh) && isDef(ch)) {
+        // 都有children 比 children
         if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
       } else if (isDef(ch)) {
+        // 只有新的节点有孩子
         if (process.env.NODE_ENV !== 'production') {
           checkDuplicateKeys(ch)
         }
+        // 如果老得节点有文本 清空
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
+        // 创建节点
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
       } else if (isDef(oldCh)) {
+        // 只有旧节点有孩子 删除
         removeVnodes(oldCh, 0, oldCh.length - 1)
       } else if (isDef(oldVnode.text)) {
         nodeOps.setTextContent(elm, '')
       }
     } else if (oldVnode.text !== vnode.text) {
+      // 都是文本 更新文本
       nodeOps.setTextContent(elm, vnode.text)
     }
     if (isDef(data)) {
